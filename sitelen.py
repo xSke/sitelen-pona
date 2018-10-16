@@ -1,6 +1,6 @@
 from io import BytesIO
 
-from flask import Flask, send_file
+from flask import Flask, abort, request, send_file
 from PIL import Image, ImageDraw, ImageFont
 
 home = """
@@ -11,15 +11,7 @@ ni li ilo. ilo ni li ken pali e sitelen pona tan lipu pona.
 
 pali tan jan Asata"""
 
-
 font = ImageFont.truetype("linjapona.otf", 30, layout_engine=ImageFont.LAYOUT_RAQM)
-
-app = Flask(__name__)
-@app.route("/")
-def root():
-    return "<pre>{}</pre>".format(home)
-
-@app.route("/<path:text>")
 def render(text):
     padding = 10
 
@@ -34,8 +26,23 @@ def render(text):
     img.save(out, format="png")
     out.seek(0)
 
-    print(text)
     return send_file(out, mimetype="image/png")
+
+app = Flask(__name__)
+@app.route("/")
+def root():
+    return "<pre>{}</pre>".format(home)
+
+@app.route("/<path:text>")
+def render_get(text):
+    return render(text)
+
+@app.route("/", methods=["POST"])
+def render_post():
+    if request.content_length > 64*1024:
+        abort(400)
+    text = request.get_data(as_text=True)
+    return render(text)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="8000")
