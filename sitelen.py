@@ -4,12 +4,7 @@ from flask import Flask, abort, request, send_file
 from PIL import Image, ImageDraw, ImageFont
 
 home = """
-ilo pi sitelen pona
-===================
-
-ni li ilo. ilo ni li ken pali e sitelen pona tan lipu pona.
-
-pali tan jan Asata"""
+"""
 
 font = ImageFont.truetype("linjapona.otf", 30, layout_engine=ImageFont.LAYOUT_RAQM)
 padding = 10
@@ -47,7 +42,7 @@ def render(text):
 app = Flask(__name__)
 @app.route("/")
 def root():
-    return "<pre>{}</pre>".format(home)
+    return send_file("index.html")
 
 @app.route("/<path:text>")
 def render_get(text):
@@ -58,7 +53,6 @@ def render_post():
     if request.content_length and request.content_length > 64*1024:
         abort(400)
     text = request.get_data(as_text=True)
-    print(text)
     return render(text)
 
 if __name__ == "__main__":

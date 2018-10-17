@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+    <head>
+        <!-- ilo ni li pali kepeken e ni: https://github.com/xSke/sitelen-pona -->
+        <title>ilo pi sitelen pona</title>
+
+        <style>
+            .poki {
+                max-width: 50rem;
+                margin: auto;
+            }
+
+            #poki-lipu {
+                width: 100%;
+            }
+
+            #poki-sitelen {
+                display: block;
+                margin: auto;
+                margin-top: 2rem;
+                border: 1px solid black;
+            }
+
+            #ilo-kama {
+                display: block;
+                margin: auto;
+                margin-top: 1rem;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="poki">
+            <pre class="lipu-ilo">
+ilo pi sitelen pona
+===================
+
+ni li ilo. ilo ni li ken pali e <a href="http://tokipona.net/tp/janpije/hieroglyphs.php">sitelen pona</a> tan lipu pi <a href="https://en.wikipedia.org/wiki/Toki_Pona">toki pona</a>.
+
+pali tan <a href="https://github.com/xSke">jan Asata</a>.
+            </pre>
+
+            <textarea id="poki-lipu">o pana e sitelen sina lon ni...</textarea>
+
+            <img id="poki-sitelen" src="/ni li pona." />
+
+            <input type="button" href="/mu" value="o kama e sitelen ni." id="ilo-kama">
+        </div>
+
+        <script>
+            var pokiLipu = document.getElementById("poki-lipu");
+            var pokiSitelen = document.getElementById("poki-sitelen");
+            var iloKama = document.getElementById("ilo-kama");
+
+            function pali(lipu) {
+                var tawa = new XMLHttpRequest();
+                tawa.responseType = "blob";
+                tawa.onload = function(ijo) {
+                    pokiSitelen.src = URL.createObjectURL(tawa.response);
+                };
+
+                tawa.open("POST", "/", true);
+                tawa.send(lipu);
+            }
+
+            pokiLipu.addEventListener("keyup", function() {
+                pali(pokiLipu.value);
+            });
+
+            iloKama.addEventListener("click", function() {
+                var iloTawa = document.createElement("a");
+                iloTawa.href = pokiSitelen.src;
+                iloTawa.download = "sitelen mi.png";
+                document.body.appendChild(iloTawa);
+                iloTawa.click();
+                document.body.removeChild(iloTawa);
+            });
+
+            pali(pokiLipu.value);
+        </script>
+    </body>
+</html>
