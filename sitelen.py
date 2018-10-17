@@ -12,15 +12,31 @@ ni li ilo. ilo ni li ken pali e sitelen pona tan lipu pona.
 pali tan jan Asata"""
 
 font = ImageFont.truetype("linjapona.otf", 30, layout_engine=ImageFont.LAYOUT_RAQM)
-def render(text):
-    padding = 10
+padding = 10
+line_spacing = 10
 
-    size = font.getsize(text)
+def size_with_newlines(text):
+    total_w = 0
+    total_h = 0
+    for line in text.split("\n"):
+        line_w, line_h = font.getsize(line)
+        total_w = max(total_w, line_w)
+        total_h = total_h + line_h + line_spacing
+    return (total_w, total_h - line_spacing)
+
+def draw_with_newlines(draw, coords, text):
+    draw_x, draw_y = coords
+    for line in text.split("\n"):
+        draw.text((draw_x, draw_y), line, font=font, fill=(0, 0, 0, 255), features=["liga"])
+        draw_y += font.getsize(line)[1] + line_spacing
+
+def render(text):
+    size = size_with_newlines(text)
     size = (size[0] + padding * 2, size[1] + padding * 2)
     img = Image.new("RGBA", size, (255, 255, 255, 255))
 
     draw = ImageDraw.Draw(img)
-    draw.text((padding, padding), text, font=font, fill=(0, 0, 0, 255), features=["liga"])
+    draw_with_newlines(draw, (padding, padding), text)
 
     out = BytesIO()
     img.save(out, format="png")
@@ -39,9 +55,10 @@ def render_get(text):
 
 @app.route("/", methods=["POST"])
 def render_post():
-    if request.content_length > 64*1024:
+    if request.content_length and request.content_length > 64*1024:
         abort(400)
     text = request.get_data(as_text=True)
+    print(text)
     return render(text)
 
 if __name__ == "__main__":
